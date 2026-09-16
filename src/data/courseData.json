@@ -1,0 +1,26 @@
+{
+  "title": "AgTech: El Futuro del Campo",
+  "slides": [
+    {
+      "id": 1,
+      "type": "intro",
+      "title": "Bienvenido a la Revolución Digital",
+      "content": "Descubrí cómo la telemetría está cambiando la cosecha en Coronel Suárez.",
+      "image": "/images/cosechadora-hero.jpg"
+    },
+    {
+      "id": 2,
+      "type": "content",
+      "title": "Sensores de Rendimiento",
+      "content": "Los sensores permiten medir el flujo de grano en tiempo real.",
+      "videoUrl": "https://banojzotfsgexogadzmr.supabase.co/storage/v1/object/sign/videos/videos/Green%20Modern%20Agriculture%20Services%20Mobile%20Video%20(1).mp4?token=eyJraWQiOiI4N2QyMjc2MS0xMjczLTRmODYtOTBlMS04MWQwY2MzMGFkYzAiLCJhbGciOiJIUzUxMiJ9.eyJ1cmwiOiJ2aWRlb3MvdmlkZW9zL0dyZWVuIE1vZGVybiBBZ3JpY3VsdHVyZSBTZXJ2aWNlcyBNb2JpbGUgVmlkZW8gKDEpLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODg4OTA2OTEsImV4cCI6MTgyMDQyNjY5MX0.l8pe_PtrpDe7eADcB_fHcFVl3lyi2JIzxcJLm-UjECgCMri3lptSsv55knRtJ90kQjgFzVAB3bL2hAe32fgXRg"
+    },
+    {
+      "id": 3,
+      "type": "quiz",
+      "question": "¿Qué tecnología permite el autoguiado?",
+      "options": ["Bluetooth", "GPS/GNSS", "Radio AM"],
+      "correct": 1
+    }
+  ]
+}
