@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { jsPDF } from 'jspdf';
 
-// 1. Este componente DEBE estar en su propio archivo o fuera de App()
-export const SlideCertificado = () => {
+// Añadimos clientName y primaryColor como props opcionales
+export const SlideCertificado = ({ clientName, primaryColor }) => {
   const [nombre, setNombre] = useState('');
   const [generando, setGenerando] = useState(false);
+
+  // Usamos el color del cliente o un verde por defecto (#28a745)
+  const brandColor = primaryColor || '#28a745';
 
   const descargarCertificado = () => {
     setGenerando(true);
 
-    // Creamos un objeto de imagen nativo de HTML
     const imagenFondo = new Image();
     imagenFondo.src = '/assets/diploma_base.png';
 
-    // Le decimos a React: "Espera a que la imagen cargue y luego arma el PDF"
     imagenFondo.onload = () => {
       try {
         const doc = new jsPDF({
@@ -22,20 +23,15 @@ export const SlideCertificado = () => {
           format: 'a4'
         });
 
-        // Ahora le pasamos el objeto imagen ya cargado en lugar de un texto
         doc.addImage(imagenFondo, 'PNG', 0, 0, 297, 210);
 
-        // Configuramos el texto
         doc.setFontSize(40);
-        doc.setTextColor(40, 167, 69); // Color verde
+        doc.setTextColor(40, 167, 69); 
         doc.setFont("helvetica", "bold");
 
-        // Centramos el nombre (148.5 es el centro del A4)
         doc.text(nombre, 148.5, 110, { align: 'center' });
 
-        // Descargamos el archivo
         doc.save(`Certificado_${nombre.replace(/\s+/g, '_')}.pdf`);
-        
         setGenerando(false);
       } catch (error) {
         console.error("Error al generar el PDF:", error);
@@ -44,7 +40,6 @@ export const SlideCertificado = () => {
       }
     };
 
-    // Si la imagen no se encuentra en la carpeta assets, lanzamos un error
     imagenFondo.onerror = () => {
       alert("Error: No se pudo encontrar la imagen diploma_base.png en la carpeta assets.");
       setGenerando(false);
@@ -55,19 +50,21 @@ export const SlideCertificado = () => {
     <div className="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white p-4 text-center rounded-4 shadow-sm">
       
       <img 
-        src="/assets/trofeo.png" /* Puedes cambiar esto por otra imagen como /assets/medalla.png */
+        src="/assets/trofeo.png" 
         alt="Éxito" 
         className="mb-4 shadow-sm"
         style={{ 
           width: '25%', 
-          maxWidth: '200px', /* Controla qué tan grande se ve en pantalla */
+          maxWidth: '200px', 
           borderRadius: '8px',
           objectFit: 'contain'
         }} 
       />
-      <h2 className="text-success fw-bold mb-3">¡Curso Completado!</h2>
+      
+      <h2 className="fw-bold mb-3" style={{ color: brandColor }}>¡Curso Completado!</h2>
+      
       <p className="mb-4 text-muted fs-5">
-        Ingresa tu nombre completo para emitir tu certificado.
+        {clientName ? `Capacitación oficial de ${clientName}.` : ''} Ingresa tu nombre completo para emitir tu certificado.
       </p>
       
       <input 
@@ -80,8 +77,8 @@ export const SlideCertificado = () => {
       />
       
       <button 
-        className="btn btn-success btn-lg px-5 py-3 shadow"
-        style={{ borderRadius: '12px', fontWeight: 'bold' }}
+        className="btn btn-lg px-5 py-3 shadow text-white"
+        style={{ borderRadius: '12px', fontWeight: 'bold', backgroundColor: brandColor, border: 'none' }}
         disabled={nombre.trim() === '' || generando}
         onClick={descargarCertificado}
       >
