@@ -5,6 +5,29 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>mi-curso-agtech1</title>
+  <!-- Regla para suprimir cualquier elemento inyectado por Netlify -->
+    <style>
+  /* Ocultar el wrapper, el iframe y cualquier elemento inyectado de Netlify */
+  .nl-wrap,
+  .nl-card,
+  #nl-card,
+  iframe[src*="netlify"],
+  iframe[id*="netlify"],
+  iframe[class*="netlify"],
+  div[class*="nl-"],
+  div[id*="netlify"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    z-index: -99999 !important;
+  }
+</style>
   </head>
   <body>
     <div id="root"></div>

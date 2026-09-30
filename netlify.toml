@@ -1,0 +1,17 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.processing]
+  skip_processing = true
+
+[build.processing.html]
+  pretty_urls = false
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Impide que Netlify o scripts externos monten iframes sobre tu propio dominio
+    X-Frame-Options = "SAMEORIGIN"
+
+    
