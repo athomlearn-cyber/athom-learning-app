@@ -57,3 +57,12 @@
     font-size: 1.5rem;
 }
 }
+/* Ocultar widget e inyecciones de Netlify */
+.nl-wrap,
+#nl-card,
+.nl-card {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
