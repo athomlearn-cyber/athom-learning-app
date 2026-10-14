@@ -11,8 +11,10 @@
     "zip": "npm run build && bestzip curso-agtech1.zip dist/*"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
     "bootstrap": "^5.3.8",
     "framer-motion": "^12.34.4",
+    "html2pdf.js": "^0.14.0",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.576.0",
     "react": "^19.2.0",

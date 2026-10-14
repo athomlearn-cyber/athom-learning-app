@@ -1,7 +1,7 @@
 // src/clientsConfig.js
 export const clientsConfig = {
   "agro-sur": {
-    name: "Agro Sur S.A.",
+    name: "Cooperativa Agro Suárez",
     logo: "assets/logos/agro-sur.png", 
     primaryColor: "#28a745",
     slides: [

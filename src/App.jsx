@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import { clientsConfig } from './clientsConfig';
 
-// Importa tus componentes de slides actuales
+// Importa tus componentes
+import LoginEmpresa from './views/LoginEmpresa'; 
 import { Slide1 } from './slides/Slide1';
 import { Slide5 } from './slides/Slide5';
 import { Slide6 } from './slides/Slide6';
@@ -13,15 +14,18 @@ import { SlideVideo_3 } from './slides/SlideVideo_3';
 import { Quiz } from './slides/Quiz';
 import { SlideCertificado } from './slides/SlideCertificado';
 
-
 export default function App() {
-  // 1. Detectar el cliente por URL (ej: ?client=agro-sur)
+  // 1. Detectar el cliente por URL
   const queryParams = new URLSearchParams(window.location.search);
   const clientKey = queryParams.get('client');
   const currentClient = clientsConfig[clientKey] || clientsConfig["default"];
-
   const courseData = currentClient.slides;
 
+  // --- NUEVOS ESTADOS PARA EL LOGIN ---
+  const [estaAutenticado, setEstaAutenticado] = useState(false);
+  const [datosAlumno, setDatosAlumno] = useState(null);
+
+  // Estados originales de tu visor
   const [currentSlide, setCurrentSlide] = useState(0);
   const [quizPassed, setQuizPassed] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,8 +34,13 @@ export default function App() {
   const currentItem = courseData[currentSlide];
   const isQuizSlide = currentItem.type === 'quiz';
 
+  // --- FUNCIÓN QUE SE EJECUTA CUANDO EL DNI ES CORRECTO ---
+  const manejarAccesoExitoso = (datos) => {
+    setDatosAlumno(datos);
+    setEstaAutenticado(true);
+  };
+
   const goToSlide = (index) => {
-    // Buscar si el slide al que quiere saltar es un certificado y validar
     const targetSlide = courseData[index];
     if (targetSlide.type === 'certificate' && !quizPassed) {
       alert("Debes aprobar el examen final para acceder a tu certificado.");
@@ -41,31 +50,39 @@ export default function App() {
     setIsMenuOpen(false);
   };
 
-  // 2. Función inteligente que decide qué componente renderizar según el "type"
   const renderSlideComponent = (item) => {
     switch (item.type) {
       case 'video':
         if (item.slideKey === 'SlideVideo_2') return <SlideVideo_2 videoUrl={item.videoUrl} />;
         if (item.slideKey === 'SlideVideo_3') return <SlideVideo_3 videoUrl={item.videoUrl} />;
         return <SlideVideo videoUrl={item.videoUrl} />;
-
       case 'slide-custom':
         if (item.slideKey === 'Slide1') return <Slide1 />;
         if (item.slideKey === 'Slide5') return <Slide5 />;
         if (item.slideKey === 'Slide6') return <Slide6 />;
         return <Slide1 />;
-   
       case 'quiz':
         return <Quiz onPass={() => setQuizPassed(true)} />;
-
       case 'certificate':
-        return <SlideCertificado courseName={item.courseName} clientName={currentClient.name} />;
-
+        // Ahora puedes pasarle los datos reales del alumno al certificado
+        return <SlideCertificado courseName={item.courseName} clientName={currentClient.name} alumnoNombre={datosAlumno?.nombre} dni={datosAlumno?.dni} />;
       default:
         return <div className="p-5 text-center">Contenido no disponible</div>;
     }
   };
 
+  // --- RENDERIZADO CONDICIONAL: SI NO ESTÁ AUTENTICADO, MUESTRA EL LOGIN ---
+  if (!estaAutenticado) {
+    return (
+      <LoginEmpresa 
+        nombreEmpresa={currentClient.name} 
+        // Si tienes logos en tu clientsConfig, puedes pasarlo así: logoUrl={currentClient.logoUrl}
+        onLoginExitoso={manejarAccesoExitoso} 
+      />
+    );
+  }
+
+  // --- SI YA SE AUTENTICÓ, MUESTRA TU INTERFAZ ORIGINAL COMPLETA ---
   return (
     <div className="container-fluid vh-100 p-0 overflow-hidden d-flex bg-light">
       

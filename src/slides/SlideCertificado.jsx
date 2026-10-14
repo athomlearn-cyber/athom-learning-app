@@ -1,89 +1,105 @@
 import React, { useState } from 'react';
-import { jsPDF } from 'jspdf';
+import html2pdf from 'html2pdf.js';
+import { supabase } from '../supabaseClient'; // ⚠️ Ajusta la ruta a tu cliente de Supabase
 
-// Añadimos clientName y primaryColor como props opcionales
-export const SlideCertificado = ({ clientName, primaryColor }) => {
-  const [nombre, setNombre] = useState('');
-  const [generando, setGenerando] = useState(false);
+export const SlideCertificado = ({ courseName, clientName, alumnoNombre, dni }) => {
+  const [guardando, setGuardando] = useState(false);
 
-  // Usamos el color del cliente o un verde por defecto (#28a745)
-  const brandColor = primaryColor || '#28a745';
+  const manejarDescargaPDF = async () => {
+    if (guardando) return;
 
-  const descargarCertificado = () => {
-    setGenerando(true);
+    try {
+      setGuardando(true);
 
-    const imagenFondo = new Image();
-    imagenFondo.src = '/assets/diploma_base.png';
+      // 1. Guardar el reporte en Supabase
+      const { error } = await supabase
+        .from('progreso_reportes')
+        .insert([
+          {
+            operario_dni: dni,
+            curso_nombre: courseName || 'Inducción General de Ingreso y Seguridad',
+            nota_porcentaje: 100,
+            estado: 'Aprobado'
+          }
+        ]);
 
-    imagenFondo.onload = () => {
-      try {
-        const doc = new jsPDF({
-          orientation: 'landscape',
-          unit: 'mm',
-          format: 'a4'
-        });
-
-        doc.addImage(imagenFondo, 'PNG', 0, 0, 297, 210);
-
-        doc.setFontSize(40);
-        doc.setTextColor(40, 167, 69); 
-        doc.setFont("helvetica", "bold");
-
-        doc.text(nombre, 148.5, 110, { align: 'center' });
-
-        doc.save(`Certificado_${nombre.replace(/\s+/g, '_')}.pdf`);
-        setGenerando(false);
-      } catch (error) {
-        console.error("Error al generar el PDF:", error);
-        alert("Hubo un error al generar el certificado. Revisa la consola.");
-        setGenerando(false);
+      if (error) {
+        console.error("Error al guardar en Supabase:", error.message);
+      } else {
+        console.log("¡Reporte guardado con éxito!");
       }
-    };
 
-    imagenFondo.onerror = () => {
-      alert("Error: No se pudo encontrar la imagen diploma_base.png en la carpeta assets.");
-      setGenerando(false);
-    };
+      // 2. Seleccionar el contenedor del certificado que queremos convertir a PDF
+      const elemento = document.getElementById('certificado-pdf');
+
+      // Configuración de html2pdf
+      const opciones = {
+        margin:       10,
+        filename:     `Certificado_${(alumnoNombre || 'colaborador').replace(/\s+/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      // 3. Generar y descargar el PDF automáticamente
+      await html2pdf().from(elemento).set(opciones).save();
+
+    } catch (err) {
+      console.error("Error inesperado:", err);
+    } finally {
+      setGuardando(false);
+    }
   };
 
   return (
-    <div className="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white p-4 text-center rounded-4 shadow-sm">
+    <div className="container-fluid h-100 d-flex flex-column justify-content-center align-items-center p-2 p-md-4 overflow-auto">
       
-      <img 
-        src="/assets/trofeo.png" 
-        alt="Éxito" 
-        className="mb-4 shadow-sm"
-        style={{ 
-          width: '25%', 
-          maxWidth: '200px', 
-          borderRadius: '8px',
-          objectFit: 'contain'
-        }} 
-      />
-      
-      <h2 className="fw-bold mb-3" style={{ color: brandColor }}>¡Curso Completado!</h2>
-      
-      <p className="mb-4 text-muted fs-5">
-        {clientName ? `Capacitación oficial de ${clientName}.` : ''} Ingresa tu nombre completo para emitir tu certificado.
-      </p>
-      
-      <input 
-        type="text" 
-        className="form-control form-control-lg mb-4 text-center shadow-sm" 
-        style={{ maxWidth: '400px', borderRadius: '12px', border: '2px solid #e9ecef' }}
-        placeholder="Ej: Juan Pérez"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-      />
-      
-      <button 
-        className="btn btn-lg px-5 py-3 shadow text-white"
-        style={{ borderRadius: '12px', fontWeight: 'bold', backgroundColor: brandColor, border: 'none' }}
-        disabled={nombre.trim() === '' || generando}
-        onClick={descargarCertificado}
+      {/* Contenedor envuelto con un ID para que html2pdf sepa exactamente qué convertir */}
+      <div 
+        id="certificado-pdf"
+        className="card shadow-lg border-0 p-3 p-sm-4 p-md-5 text-center w-100" 
+        style={{ maxWidth: '800px', borderRadius: '24px', backgroundColor: '#fff' }}
       >
-        {generando ? 'Generando PDF...' : 'Descargar Certificado'}
-      </button>
+        
+        {/* Cabecera del Certificado */}
+        <h6 className="text-uppercase tracking-widest text-muted fw-bold mb-1 fs-6" style={{ letterSpacing: '2px' }}>
+          Certificado de Finalización
+        </h6>
+        <h3 className="fw-bold text-success mb-3 fs-2">Athom Learning</h3>
+        
+        <p className="text-secondary small mb-1">Se certifica que el operario / colaborador:</p>
+        
+        {/* Datos reales del alumno ingresados por DNI */}
+        <h1 className="fw-bold text-dark my-2 fs-3 fs-md-2 border-bottom pb-2 text-break">
+          {alumnoNombre || 'Colaborador Evaluado'}
+        </h1>
+        <p className="text-muted fw-semibold mb-3 small">
+          DNI: {dni || 'No especificado'}
+        </p>
+
+        <p className="text-secondary small mb-2">Ha completado y aprobado satisfactoriamente la capacitación:</p>
+        <h5 className="fw-bold text-dark mb-3 fs-5">
+          {courseName || 'Protocolos y Buenas Prácticas'}
+        </h5>
+
+        <p className="text-muted small mb-4 px-2">
+          Otorgado para la empresa <strong className="text-dark">{clientName}</strong>, validando el cumplimiento de los estándares operativos y de seguridad.
+        </p>
+
+      </div>
+
+      {/* Botón fuera del contenedor del PDF para que no salga impreso en el archivo */}
+      <div className="mt-4">
+        <button 
+          onClick={manejarDescargaPDF}
+          disabled={guardando}
+          className="btn btn-success px-4 py-2 px-md-5 py-md-3 rounded-pill fw-bold shadow-sm"
+          style={{ fontSize: '0.95rem' }}
+        >
+          {guardando ? 'Generando PDF y registrando...' : 'Descargar Certificado PDF'}
+        </button>
+      </div>
+
     </div>
   );
 };
